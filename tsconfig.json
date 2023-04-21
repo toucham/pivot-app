@@ -1,22 +1,27 @@
 {
-    "compilerOptions": {
+  "compilerOptions": {
     "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "jsx": "preserve",                                /* Specify what JSX code is generated. */
-    "jsxImportSource": "solid-js",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
+    "jsx": "preserve", /* Specify what JSX code is generated. */
+    "jsxImportSource": "solid-js", /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
     "module": "commonjs", /* Specify what module code is generated. */
-    "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    "rootDir": "./", /* Specify the root folder within your source files. */
+    "baseUrl": "./", /* Specify the base directory to resolve non-relative module names. */
     "paths": {
       "*": [
         "./node_modules/*"
       ]
-    },     
-    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    },
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-module"
+      }
+    ],
+    "sourceMap": true, /* Create source map files for emitted JavaScript files. */
     "outDir": "./build", /* Specify an output folder for all emitted files. */
     "esModuleInterop": true, /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
     "strict": true, /* Enable all strict type-checking options. */
-    "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+    "noImplicitAny": true, /* Enable error reporting for expressions and declarations with an implied 'any' type. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [

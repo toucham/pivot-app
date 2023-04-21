@@ -1,7 +1,10 @@
 import type { Component } from 'solid-js';
+import { invoke } from '@tauri-apps/api';
 
 const App: Component = () => {
-  return <div>Hi finally it's working yay</div>;
+  invoke<string>('greet', { name: 'World' }).then((res) => console.log(res));
+
+  return <div>Hi finally yay</div>;
 };
 
 export default App;

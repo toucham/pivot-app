@@ -1,13 +1,15 @@
-import type IForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
+import type { WebpackPluginInstance } from 'webpack';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
+const devMode = process.env.NODE_ENV !== 'production';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const ForkTsCheckerWebpackPlugin: typeof IForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-export const plugins = [
+export const plugins: WebpackPluginInstance[] = [
   new ForkTsCheckerWebpackPlugin({
     logger: 'webpack-infrastructure',
   }),
@@ -21,3 +23,7 @@ export const plugins = [
   //speed up TS type checking & ESLint linting
   new ForkTsCheckerWebpackPlugin(),
 ];
+
+if (!devMode) {
+  plugins.push(new MiniCssExtractPlugin());
+}

@@ -1,4 +1,6 @@
 import type { ModuleOptions } from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+const devMode = process.env.NODE_ENV !== 'production';
 
 export const rules: Required<ModuleOptions>['rules'] = [
   // Add support for native node modules
@@ -12,22 +14,13 @@ export const rules: Required<ModuleOptions>['rules'] = [
     },
   },
   {
-    test: /\.(less|css)$/i,
+    test: /\.css$/i,
     use: [
-      'style-loader',
-      'css-loader',
       {
-        loader: 'less-loader',
-        options: {
-          lessOptions: {
-            modifyVars: {
-              //theme customization
-              '@primary-color': '#4DA56E',
-            },
-            javascriptEnabled: true,
-          },
-        },
+        loader: devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+        options: { injectType: 'styleTag' },
       },
+      'css-loader',
     ],
   },
   {
@@ -41,6 +34,7 @@ export const rules: Required<ModuleOptions>['rules'] = [
       loader: 'babel-loader',
       options: {
         presets: ['solid', '@babel/preset-typescript'],
+        plugins: ['solid-refresh/babel'],
       },
     },
   },
