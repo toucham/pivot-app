@@ -9,7 +9,6 @@ module.exports = {
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/recommended',
-    'plugin:import/electron',
     'plugin:import/typescript',
     'plugin:prettier/recommended',
   ],
@@ -19,6 +18,9 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true, // Allows for the parsing of JSX
+    },
   },
   rules: {
     'prettier/prettier': [
