@@ -1,6 +1,6 @@
-import { Component } from 'solid-js';
+import { Component, createEffect, createSignal, Show } from 'solid-js';
 import { formatMs2Time } from '../../utils/timer';
-import { Activity, Progress, Time } from '../../model';
+import { Activity, Progress, Time, Timer } from '../../model';
 import styles from '../../style/activities/ActivityCard.module.css';
 import ProgressBar from '../ProgressBar';
 import PlayIcon from '../icons/PlayIcon';
@@ -12,29 +12,44 @@ export interface ActivityCardProps {
 
 interface InfoSectionProps {
   name: string;
-  time: Time;
+  time: Timer;
   progress?: Progress;
 }
 
-const IconSection: Component<{ codePoint: number }> = ({ codePoint }) => (
+const IconSection: Component<{ codePoint: number }> = (props) => (
   <div class={styles.cardIconSection}>
-    <p>{String.fromCodePoint(codePoint)}</p>
+    <p>{String.fromCodePoint(props.codePoint)}</p>
   </div>
 );
 
-const InfoSection: Component<InfoSectionProps> = ({ name, progress, time }) => (
-  <div class={styles.cardInfoSection}>
-    <h4>{name}</h4>
-    {progress && (
-      <div id="bar">
-        <ProgressBar current={30} />
-      </div>
-    )}
-    <p>
-      {time.hr}:{time.min}:{time.sec}
-    </p>
-  </div>
-);
+const InfoSection: Component<InfoSectionProps> = (props) => {
+  const [time, setTime] = createSignal<Time>({ hr: '00', min: '00', sec: '00' });
+
+  createEffect(() => {
+    setTime(formatMs2Time(props.time.time));
+  }, props.time);
+
+  return (
+    <div class={styles.cardInfoSection}>
+      <h4>{props.name}</h4>
+      <Show when={props.progress}>
+        <div id="bar">
+          <ProgressBar
+            current={
+              props.progress != undefined
+                ? Math.ceil((props.time.time / props.progress.time) * 100)
+                : 0
+            }
+            variant={props.progress != undefined ? props.progress.type : 'goal'}
+          />
+        </div>
+      </Show>
+      <p>
+        {time().hr}:{time().min}:{time().sec}
+      </p>
+    </div>
+  );
+};
 
 const TimerSection: Component = () => (
   <div class={styles.cardTimerSection}>
@@ -62,7 +77,7 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
       <IconSection codePoint={props.activity.icon} />
       <InfoSection
         name={props.activity.name}
-        time={formatMs2Time(props.activity.timer.currTimer)}
+        time={props.activity.timer}
         progress={props.activity.progress}
       />
       <TimerSection />

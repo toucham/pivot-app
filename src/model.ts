@@ -5,7 +5,7 @@ export interface Group {
 
 export interface Progress {
   type: 'goal' | 'limit';
-  complete: number;
+  time: number;
 }
 
 export interface Time {
@@ -16,12 +16,13 @@ export interface Time {
 
 export interface Timer {
   ongoing: boolean;
-  currTimer: number;
+  time: number;
   start?: number;
   end?: number;
 }
 
 export interface Activity {
+  id: number;
   icon: number;
   name: string;
   timer: Timer;

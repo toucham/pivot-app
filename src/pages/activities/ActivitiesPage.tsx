@@ -1,60 +1,13 @@
-import { Component, createSignal, For, onMount } from 'solid-js';
+import { Component, createSignal, For, onMount, useContext } from 'solid-js';
 import styles from '../../style/activities/ActivitiesPage.module.css';
-import { Activity } from '../../model';
 import ActivityCard from '../../components/activities/ActivityCard';
 import { DashboardIcon, AddIcon, EditIcon } from '../../components/icons';
 import NewActivityModal from '../../components/activities/NewActivityModal';
-
-const acts: Activity[] = [
-  {
-    icon: 0x1f600,
-    name: 'Personal Project',
-    timer: {
-      ongoing: false,
-      currTimer: 0,
-    },
-  },
-  {
-    icon: 0x1f3c3,
-    name: 'Workout',
-    progress: {
-      type: 'goal',
-      complete: 50,
-    },
-    timer: {
-      ongoing: false,
-      currTimer: 0,
-    },
-  },
-  {
-    icon: 0x1f3ae,
-    name: 'Gaming',
-    timer: {
-      ongoing: false,
-      currTimer: 0,
-    },
-  },
-  {
-    icon: 0x1f4da,
-    name: 'Homework',
-    timer: {
-      ongoing: false,
-      currTimer: 0,
-    },
-  },
-  {
-    icon: 0x1f3b6,
-    name: 'Music',
-    timer: {
-      ongoing: false,
-      currTimer: 0,
-    },
-  },
-];
+import { StateContext } from '../../StateContext';
 
 const ActivitiesPage: Component = () => {
-  const [activities, setActivities] = createSignal<Activity[] | null>(acts);
-  const [isOpenedAdd, setIsOpenedAdd] = createSignal<boolean>(true);
+  const [state, { addActivity }] = useContext(StateContext);
+  const [isOpenedAdd, setIsOpenedAdd] = createSignal<boolean>(false);
 
   let wsDivRef: HTMLDivElement | undefined;
   let wsRef: HTMLDivElement | undefined;
@@ -68,7 +21,7 @@ const ActivitiesPage: Component = () => {
   return (
     <main>
       <div class={styles.cards}>
-        <For each={activities()}>{(a) => <ActivityCard activity={a} />}</For>
+        <For each={state.activities}>{(a) => <ActivityCard activity={a} />}</For>
         <div class={styles.whitespace} ref={wsDivRef} />
       </div>
       <div ref={wsRef} class={styles.barContainer}>
@@ -88,7 +41,11 @@ const ActivitiesPage: Component = () => {
           </li>
         </menu>
       </div>
-      <NewActivityModal open={isOpenedAdd()} onBack={() => setIsOpenedAdd(false)} />
+      <NewActivityModal
+        onOk={addActivity}
+        open={isOpenedAdd()}
+        onBack={() => setIsOpenedAdd(false)}
+      />
     </main>
   );
 };

@@ -13,7 +13,7 @@ const ProgressBar: Component<ProgressBarProps> = (props) => {
       if (props.variant != null && props.variant == 'limit') {
         bar.style.backgroundColor = 'red';
       }
-      if (props.current <= 100 && props.current >= 0) {
+      if (props.current <= 100 && props.current > 0) {
         bar.style.width = props.current + '%';
       }
     }
