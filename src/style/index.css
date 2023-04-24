@@ -1,0 +1,22 @@
+html {
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  background: transparent;
+
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#root {
+  height: 100%;
+}

@@ -1,0 +1,46 @@
+.card {
+  display: grid;
+  grid-template-columns: 0.75fr 2fr 1.5fr;
+  border: solid 1px black;
+  border-radius: 20px;
+  padding: 10px 0;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+/* card icon section */
+.cardIconSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardIconSection>p {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+/* card timer section */
+.cardTimerSection {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 20px;
+}
+
+/* card info section */
+.cardInfoSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cardInfoSection>div {
+  margin: 0.25rem 0;
+}
+
+.cardInfoSection>h4,
+.cardInfoSection>p {
+  margin: 0;
+}

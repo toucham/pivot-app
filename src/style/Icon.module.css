@@ -1,0 +1,17 @@
+.icon {
+  font-size: 1.25rem;
+  position: relative;
+  width: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.icon>svg {
+  position: relative;
+  transition: filter 0.15s;
+}
+
+.icon>svg:hover {
+  filter: drop-shadow(2px 2px 1px rgb(0 0 0 / 0.3));
+}

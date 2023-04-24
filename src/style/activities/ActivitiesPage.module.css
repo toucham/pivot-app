@@ -1,0 +1,29 @@
+/* bottom menu bar */
+.bottomBar {
+  list-style-type: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1.5rem;
+  margin: 0;
+  background-color: white;
+  box-shadow: 0px 1px 4px rgba(50, 50, 50, 0.75);
+}
+
+.barContainer {
+  z-index: 2;
+  position: fixed;
+  bottom: 0;
+  width: 100vw;
+}
+
+.whitespace {
+  width: 100%;
+  background: transparent;
+}
+
+.cards {
+  display: grid;
+  padding: 1rem;
+  row-gap: 1rem;
+  margin-bottom: 1rem;
+}
