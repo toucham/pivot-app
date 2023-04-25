@@ -46,6 +46,9 @@ const mainConfig: Configuration = {
     port: 3000,
     hot: true,
     compress: true,
+    historyApiFallback: {
+      index: 'index.html',
+    },
   },
   optimization: {
     runtimeChunk: 'single',

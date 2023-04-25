@@ -11,6 +11,7 @@
     "version": "0.1.0"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "allowlist": {
       "all": false,
       "window": {
@@ -59,10 +60,12 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
         "resizable": true,
         "title": "Pivot Focus",
-        "width": 800
+        "height": 560,
+        "width": 420,
+        "minWidth": 420,
+        "transparent": true
       }
     ]
   }

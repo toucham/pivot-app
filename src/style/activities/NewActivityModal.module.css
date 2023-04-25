@@ -9,7 +9,7 @@
 }
 
 .modal>div {
-  background-color: white;
+  background-color: rgba(57, 67, 94, 1);
   box-shadow: 0px 1px 4px rgba(50, 50, 50, 0.75);
   border-top-right-radius: 3rem;
   border-top-left-radius: 3rem;

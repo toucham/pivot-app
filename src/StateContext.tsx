@@ -60,22 +60,28 @@ const mock: Activity[] = [
 
 interface StateStore {
   activities: Activity[];
+  currId: number;
 }
 
 interface OptStore {
   addActivity: (a: Activity) => void;
   removeActivity: (id: number) => void;
+  focusActivity: (id: number) => void;
 }
 
 type StoreContext = [StateStore, OptStore];
 
 export const StateContext = createContext<StoreContext>([
-  { activities: [] },
+  { activities: [], currId: 0 },
   {
     addActivity(a: Activity) {
       console.log(a.id);
     },
     removeActivity(id: number) {
+      console.log(id);
+    },
+    focusActivity(id: number) {
+      // pass in proxy so that all states change
       console.log(id);
     },
   },
@@ -84,18 +90,21 @@ export const StateContext = createContext<StoreContext>([
 const StateProvider: Component<ParentProps> = (props) => {
   const [state, setState] = createStore<StateStore>({
     activities: mock,
+    currId: 0,
   });
 
   const context: [StateStore, OptStore] = [
     state,
     {
       addActivity(act: Activity) {
-        console.log('state context: ');
-        console.log(act);
+        act.id = Date.now();
         setState('activities', (a) => [...a, act]);
       },
       removeActivity(id: number) {
         setState('activities', (a) => a.filter((e) => e.id != id));
+      },
+      focusActivity(id: number) {
+        setState('currId', id);
       },
     },
   ];

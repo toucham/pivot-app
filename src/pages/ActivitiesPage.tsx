@@ -1,9 +1,9 @@
 import { Component, createSignal, For, onMount, useContext } from 'solid-js';
-import styles from '../../style/activities/ActivitiesPage.module.css';
-import ActivityCard from '../../components/activities/ActivityCard';
-import { DashboardIcon, AddIcon, EditIcon } from '../../components/icons';
-import NewActivityModal from '../../components/activities/NewActivityModal';
-import { StateContext } from '../../StateContext';
+import styles from '../style/activities/ActivitiesPage.module.css';
+import ActivityCard from '../components/activities/ActivityCard';
+import { DashboardIcon, AddIcon, EditIcon } from '../components/icons';
+import NewActivityModal from '../components/activities/NewActivityModal';
+import { StateContext } from '../StateContext';
 
 const ActivitiesPage: Component = () => {
   const [state, { addActivity }] = useContext(StateContext);

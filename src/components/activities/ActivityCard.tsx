@@ -1,10 +1,12 @@
-import { Component, createEffect, createSignal, Show } from 'solid-js';
+import { Component, createEffect, createSignal, JSX, Show, useContext } from 'solid-js';
 import { formatMs2Time } from '../../utils/timer';
 import { Activity, Progress, Time, Timer } from '../../model';
 import styles from '../../style/activities/ActivityCard.module.css';
 import ProgressBar from '../ProgressBar';
 import PlayIcon from '../icons/PlayIcon';
 import StopIcon from '../icons/StopIcon';
+import { Navigate, useNavigate } from '@solidjs/router';
+import { StateContext } from '../../StateContext';
 
 export interface ActivityCardProps {
   activity: Activity;
@@ -51,12 +53,31 @@ const InfoSection: Component<InfoSectionProps> = (props) => {
   );
 };
 
-const TimerSection: Component = () => (
-  <div class={styles.cardTimerSection}>
-    <StopIcon />
-    <PlayIcon />
-  </div>
-);
+interface TimerSectionProps {
+  activityId: number;
+}
+
+const TimerSection: Component<TimerSectionProps> = (props) => {
+  const [state, { focusActivity }] = useContext(StateContext);
+  const nav = useNavigate();
+  createEffect(() => {
+    if (state.currId != 0) {
+      nav('/timer');
+    }
+  }, state.currId);
+
+  return (
+    <div class={styles.cardTimerSection}>
+      <StopIcon />
+      <PlayIcon
+        onClick={(e) => {
+          e.preventDefault();
+          focusActivity(props.activityId);
+        }}
+      />
+    </div>
+  );
+};
 
 const ActivityCard: Component<ActivityCardProps> = (props) => {
   // const [startTime, setStartTime] = createSignal<number>(Date.now());
@@ -72,6 +93,7 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
   // const onClickStopTimer = () => {
   //   clearInterval(interval);
   // };
+
   return (
     <div id="card" class={styles.card}>
       <IconSection codePoint={props.activity.icon} />
@@ -80,7 +102,7 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
         time={props.activity.timer}
         progress={props.activity.progress}
       />
-      <TimerSection />
+      <TimerSection activityId={props.activity.id} />
     </div>
   );
 };

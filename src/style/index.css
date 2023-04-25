@@ -5,7 +5,7 @@ html {
 body {
   margin: 0;
   height: 100%;
-  background: transparent;
+  background: rgba(44, 73, 143, 0.45);
 
   -ms-overflow-style: none;
   /* IE and Edge */
