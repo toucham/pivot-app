@@ -60,11 +60,6 @@ interface TimerSectionProps {
 const TimerSection: Component<TimerSectionProps> = (props) => {
   const [state, { focusActivity }] = useContext(StateContext);
   const nav = useNavigate();
-  createEffect(() => {
-    if (state.currId != 0) {
-      nav('/timer');
-    }
-  }, state.currId);
 
   return (
     <div class={styles.cardTimerSection}>
@@ -73,6 +68,7 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
         onClick={(e) => {
           e.preventDefault();
           focusActivity(props.activityId);
+          nav('/timer');
         }}
       />
     </div>

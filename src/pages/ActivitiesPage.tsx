@@ -1,9 +1,11 @@
-import { Component, createSignal, For, onMount, useContext } from 'solid-js';
+import { Component, createSignal, For, onCleanup, onMount, useContext } from 'solid-js';
 import styles from '../style/activities/ActivitiesPage.module.css';
 import ActivityCard from '../components/activities/ActivityCard';
 import { DashboardIcon, AddIcon, EditIcon } from '../components/icons';
 import NewActivityModal from '../components/activities/NewActivityModal';
 import { StateContext } from '../StateContext';
+import { appWindow, LogicalSize } from '@tauri-apps/api/window';
+import { listen, TauriEvent, UnlistenFn } from '@tauri-apps/api/event';
 
 const ActivitiesPage: Component = () => {
   const [state, { addActivity }] = useContext(StateContext);
@@ -11,11 +13,20 @@ const ActivitiesPage: Component = () => {
 
   let wsDivRef: HTMLDivElement | undefined;
   let wsRef: HTMLDivElement | undefined;
-  onMount(() => {
+  let unlisten: UnlistenFn;
+  onMount(async () => {
+    await appWindow.setSize(new LogicalSize(400, 600));
+    unlisten = await listen(TauriEvent.WINDOW_MOVED, async () => {
+      await appWindow.setSize(new LogicalSize(400, 600));
+    });
     // whitespace div so it is scrollable to see last card
     if (wsDivRef != undefined && wsRef != undefined) {
       wsDivRef.style.height = `${wsRef.scrollHeight}px`;
     }
+  });
+
+  onCleanup(() => {
+    unlisten();
   });
 
   return (
