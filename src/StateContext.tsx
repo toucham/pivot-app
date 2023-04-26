@@ -8,8 +8,7 @@ const mock: Activity[] = [
     icon: 0x1f600,
     name: 'Personal Project',
     timer: {
-      ongoing: false,
-      time: 0,
+      time: 1000000,
     },
   },
   {
@@ -18,11 +17,10 @@ const mock: Activity[] = [
     name: 'Workout',
     progress: {
       type: 'goal',
-      time: 50,
+      time: 600000,
     },
     timer: {
-      ongoing: false,
-      time: 25,
+      time: 240000,
     },
   },
   {
@@ -31,11 +29,10 @@ const mock: Activity[] = [
     name: 'Gaming',
     progress: {
       type: 'limit',
-      time: 100,
+      time: 10000,
     },
     timer: {
-      ongoing: false,
-      time: 25,
+      time: 1000,
     },
   },
   {
@@ -43,7 +40,6 @@ const mock: Activity[] = [
     icon: 0x1f4da,
     name: 'Homework',
     timer: {
-      ongoing: false,
       time: 0,
     },
   },
@@ -52,7 +48,14 @@ const mock: Activity[] = [
     icon: 0x1f3b6,
     name: 'Music',
     timer: {
-      ongoing: false,
+      time: 0,
+    },
+  },
+  {
+    id: 6,
+    icon: 0x1f57a,
+    name: 'Entertainment',
+    timer: {
       time: 0,
     },
   },
@@ -67,6 +70,8 @@ interface OptStore {
   addActivity: (a: Activity) => void;
   removeActivity: (id: number) => void;
   focusActivity: (id: number) => void;
+  unfocusActivity: () => void;
+  addCurrTime: (ms: number) => void;
 }
 
 type StoreContext = [StateStore, OptStore];
@@ -83,6 +88,12 @@ export const StateContext = createContext<StoreContext>([
     focusActivity(id: number) {
       // pass in proxy so that all states change
       console.log(id);
+    },
+    unfocusActivity() {
+      console.log('unfocus activity');
+    },
+    addCurrTime(ms: number) {
+      console.log('ms added: ' + ms);
     },
   },
 ]);
@@ -105,6 +116,18 @@ const StateProvider: Component<ParentProps> = (props) => {
       },
       focusActivity(id: number) {
         setState('currId', id);
+      },
+      unfocusActivity() {
+        setState('currId', 0);
+      },
+      addCurrTime(ms: number) {
+        setState(
+          'activities',
+          (a) => a.id == state.currId,
+          'timer',
+          'time',
+          (t) => t + ms,
+        );
       },
     },
   ];

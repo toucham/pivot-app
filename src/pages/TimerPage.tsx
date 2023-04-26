@@ -1,23 +1,48 @@
-import { Component, onCleanup, onMount, useContext } from 'solid-js';
+import {
+  Component,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+  Show,
+  useContext,
+} from 'solid-js';
 import { StateContext } from '../StateContext';
 import { appWindow, LogicalSize } from '@tauri-apps/api/window';
 import { listen, UnlistenFn, TauriEvent } from '@tauri-apps/api/event';
+import styles from '../style/TimerPage.module.css';
+import ActivityCard from '../components/activities/ActivityCard';
+import { Activity } from '../model';
 
 const TimerPage: Component = () => {
   const [state, _] = useContext(StateContext);
-  let unlisten: UnlistenFn;
+  const [act, setAct] = createSignal<Activity>();
+  let unlisten: Promise<UnlistenFn>;
 
-  onMount(async () => {
-    await appWindow.setMaxSize(new LogicalSize(350, 100));
-    unlisten = await listen(TauriEvent.WINDOW_MOVED, async () => {
-      await appWindow.setSize(new LogicalSize(350, 100));
+  createEffect(() => {
+    if (state.currId != 0) {
+      setAct(state.activities.find((a) => a.id == state.currId));
+    }
+  }, state.currId);
+
+  onMount(() => {
+    appWindow.setSize(new LogicalSize(300, 100));
+    unlisten = listen(TauriEvent.WINDOW_MOVED, async () => {
+      await appWindow.setSize(new LogicalSize(300, 100));
     });
+    appWindow.setAlwaysOnTop(true);
   });
 
   onCleanup(() => {
-    unlisten();
+    unlisten.then((u) => u());
+    appWindow.setAlwaysOnTop(false);
   });
-  return <div> Timer page </div>;
+
+  return (
+    <main data-tauri-drag-region class={styles.page}>
+      <Show when={act()}>{(a) => <ActivityCard activity={a()} />}</Show>
+    </main>
+  );
 };
 
 export default TimerPage;

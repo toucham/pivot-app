@@ -15,7 +15,6 @@ export interface Time {
 }
 
 export interface Timer {
-  ongoing: boolean;
   time: number;
   start?: number;
   end?: number;

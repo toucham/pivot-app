@@ -1,4 +1,4 @@
-import { Component, onMount } from 'solid-js';
+import { Component, createEffect, onMount } from 'solid-js';
 import styles from '../style/ProgressBar.module.css';
 
 export interface ProgressBarProps {
@@ -8,16 +8,18 @@ export interface ProgressBarProps {
 
 const ProgressBar: Component<ProgressBarProps> = (props) => {
   let bar: HTMLDivElement | undefined;
-  onMount(() => {
+
+  createEffect(() => {
     if (bar) {
       if (props.variant != null && props.variant == 'limit') {
-        bar.style.backgroundColor = 'red';
+        bar.style.backgroundColor = 'rgba(255, 5, 5, 0.7)';
       }
-      if (props.current <= 100 && props.current > 0) {
-        bar.style.width = props.current + '%';
+      if (props.current > 0) {
+        const curr = props.current > 100 ? 100 : props.current;
+        bar.style.width = curr + '%';
       }
     }
-  });
+  }, props.current);
 
   return (
     <div class={styles.progress}>

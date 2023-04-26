@@ -1,3 +1,10 @@
+.barContainer {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  z-index: 2;
+}
+
 /* bottom menu bar */
 .bottomBar {
   list-style-type: none;
@@ -5,25 +12,48 @@
   justify-content: space-between;
   padding: 0.5rem 1.5rem;
   margin: 0;
-  background-color: rgba(51, 70, 119, 0.95);
-  box-shadow: 0px 1px 4px rgba(50, 50, 50, 0.75);
+  box-shadow: 2px 2px 5px 1px rgba(5, 5, 5, 0.5);
 }
 
-.barContainer {
-  z-index: 2;
-  position: fixed;
-  bottom: 0;
-  width: 100vw;
-}
 
 .whitespace {
   width: 100%;
   background: transparent;
 }
 
+
 .cards {
   display: grid;
   padding: 1rem;
   row-gap: 1rem;
-  margin-bottom: 1rem;
+}
+
+.cardsContainer {
+  height: 515px;
+  overflow-y: scroll;
+}
+
+.cardBorder {
+  padding: 0.25rem 0;
+  border-radius: var(--border-radius-px);
+  background: inherit;
+  box-shadow: 0 1px 8px -3px rgba(5, 5, 5, 1);
+  backdrop-filter: brightness(95%);
+  -webkit-backdrop-filter: brightness(95%);
+  transition: transform 0.25s;
+}
+
+.cardBorder:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 8px -3px rgba(5, 5, 5, 1);
+  backdrop-filter: brightness(90%);
+  -webkit-backdrop-filter: brightness(90%);
+}
+
+.main {
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

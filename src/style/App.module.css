@@ -1,1 +1,22 @@
+.titlebar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2.5px 8px;
+  height: 20px;
+  column-gap: 8px;
+}
 
+.titlebar>span {
+  border-radius: 16px;
+  padding: 1x;
+  width: 18px;
+  height: 18px;
+  font-weight: bold;
+  transition: backdrop-filter 0.25s;
+  transition: -webkit-backdrop-filter 0.25s;
+}
+
+.titlebar>span:hover {
+  backdrop-filter: brightness(85%);
+  -webkit-backdrop-filter: brightness(85%);
+}

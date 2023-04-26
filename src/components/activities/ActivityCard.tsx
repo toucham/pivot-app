@@ -1,12 +1,23 @@
-import { Component, createEffect, createSignal, JSX, Show, useContext } from 'solid-js';
+import {
+  Component,
+  createEffect,
+  createSignal,
+  Match,
+  onCleanup,
+  onMount,
+  Show,
+  Switch,
+  useContext,
+} from 'solid-js';
 import { formatMs2Time } from '../../utils/timer';
 import { Activity, Progress, Time, Timer } from '../../model';
-import styles from '../../style/activities/ActivityCard.module.css';
 import ProgressBar from '../ProgressBar';
 import PlayIcon from '../icons/PlayIcon';
 import StopIcon from '../icons/StopIcon';
-import { Navigate, useNavigate } from '@solidjs/router';
+import { useNavigate } from '@solidjs/router';
 import { StateContext } from '../../StateContext';
+import styles from '../../style/activities/ActivityCard.module.css';
+import PauseIcon from '../icons/PauseIcon';
 
 export interface ActivityCardProps {
   activity: Activity;
@@ -55,40 +66,89 @@ const InfoSection: Component<InfoSectionProps> = (props) => {
 
 interface TimerSectionProps {
   activityId: number;
+  onClickPlayTimer: () => void;
+  onClickPauseTimer: () => void;
 }
 
 const TimerSection: Component<TimerSectionProps> = (props) => {
-  const [state, { focusActivity }] = useContext(StateContext);
+  const [isPause, setIsPause] = createSignal(false);
+  const [state, { focusActivity, unfocusActivity }] = useContext(StateContext);
   const nav = useNavigate();
+
+  const onClickPause = () => {
+    setIsPause(!isPause());
+    props.onClickPauseTimer();
+  };
+
+  const onClickPlayAfterPause = () => {
+    setIsPause(!isPause());
+    props.onClickPlayTimer();
+  };
+
+  const onClickStop = () => {
+    unfocusActivity();
+    nav('/');
+  };
+
+  const onClickPlay = () => {
+    focusActivity(props.activityId);
+    nav('/timer');
+  };
 
   return (
     <div class={styles.cardTimerSection}>
-      <StopIcon />
-      <PlayIcon
-        onClick={(e) => {
-          e.preventDefault();
-          focusActivity(props.activityId);
-          nav('/timer');
-        }}
-      />
+      <Switch fallback={<div>404 Not Found</div>}>
+        <Match when={state.currId == props.activityId}>
+          <StopIcon onClick={onClickStop} />
+          <Switch>
+            <Match when={!isPause()}>
+              <PauseIcon onClick={onClickPause} />
+            </Match>
+            <Match when={isPause()}>
+              <PlayIcon onClick={onClickPlayAfterPause} />
+            </Match>
+          </Switch>
+        </Match>
+        <Match when={state.currId != props.activityId}>
+          <PlayIcon onClick={onClickPlay} />
+        </Match>
+      </Switch>
     </div>
   );
 };
 
 const ActivityCard: Component<ActivityCardProps> = (props) => {
-  // const [startTime, setStartTime] = createSignal<number>(Date.now());
+  const [state, { addCurrTime }] = useContext(StateContext);
+  const [startTime, setStartTime] = createSignal<number>(Date.now());
 
-  // let interval: NodeJS.Timer;
-  // const onClickStartTimer = () => {
-  //   setStartTime(Date.now());
-  //   interval = setInterval(() => {
-  //     const dt = Date.now() - startTime();
-  //   }, 1000);
-  // };
+  let interval: number;
+  const onClickPlayTimer = () => {
+    setStartTime(Date.now());
+    interval = setInterval(() => {
+      const timeNow = Date.now();
+      const dt = timeNow - startTime();
+      addCurrTime(dt);
+      setStartTime(timeNow);
+    }, 1000);
+  };
 
-  // const onClickStopTimer = () => {
-  //   clearInterval(interval);
-  // };
+  const onClickPauseTimer = () => {
+    clearInterval(interval);
+  };
+
+  onMount(() => {
+    if (state.currId == props.activity.id) {
+      const refs = document.querySelectorAll('main *');
+      for (const r of refs) {
+        r.setAttribute('data-tauri-drag-region', '');
+      }
+      onClickPlayTimer();
+    }
+  });
+
+  onCleanup(() => {
+    clearInterval(interval);
+  });
 
   return (
     <div id="card" class={styles.card}>
@@ -98,7 +158,11 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
         time={props.activity.timer}
         progress={props.activity.progress}
       />
-      <TimerSection activityId={props.activity.id} />
+      <TimerSection
+        activityId={props.activity.id}
+        onClickPlayTimer={onClickPlayTimer}
+        onClickPauseTimer={onClickPauseTimer}
+      />
     </div>
   );
 };

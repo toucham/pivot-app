@@ -4,7 +4,7 @@
 )]
 
 use tauri::Manager;
-use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
 
 fn main() {
     tauri::Builder::default()
@@ -14,13 +14,13 @@ fn main() {
             {
                 window.open_devtools();
             }
-            let activeState: Option<NSVisualEffectState> = Some(NSVisualEffectState::Active);
             #[cfg(target_os = "macos")]
+            let radius = 12.0_f64;
             apply_vibrancy(
                 &window,
                 NSVisualEffectMaterial::HudWindow,
-                activeState,
                 None,
+                Some(radius),
             )
             .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 

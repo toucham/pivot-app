@@ -59,11 +59,12 @@
     },
     "windows": [
       {
+        "decorations": false,
         "fullscreen": false,
         "resizable": false,
         "title": "Pivot Focus",
         "height": 600,
-        "width": 400,
+        "width": 340,
         "transparent": true
       }
     ]

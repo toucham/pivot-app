@@ -46,11 +46,9 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
         modalRef.style.transform = 'none';
       } else {
         modalRef.style.transform = 'translateY(100%)';
-        setTimeout(() => {
-          if (modalRef != undefined) {
-            modalRef.style.visibility = 'hidden';
-          }
-        }, 500);
+        if (modalRef != undefined) {
+          modalRef.style.visibility = 'hidden';
+        }
       }
     }
   }, props.open);
