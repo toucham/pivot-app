@@ -1,8 +1,8 @@
 /*@once*/
 
-import { Component, createEffect, createSignal, Show } from 'solid-js';
+import { Component, Show } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
-import { Route, Router, Routes, useLocation } from '@solidjs/router';
+import { Route, Routes, useLocation } from '@solidjs/router';
 // dashboard
 import DashboardPage from './pages/DashboardPage';
 //activities

@@ -4,6 +4,8 @@ module.exports = {
     es6: true,
     node: true,
   },
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'solid'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
@@ -11,10 +13,9 @@ module.exports = {
     'plugin:import/recommended',
     'plugin:import/typescript',
     'plugin:prettier/recommended',
+    'plugin:solid/recommended',
   ],
-  parser: '@typescript-eslint/parser',
   overrides: [],
-  plugins: ['@typescript-eslint'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',

@@ -1,4 +1,4 @@
-import { Component, createEffect, onMount } from 'solid-js';
+import { Component, createEffect } from 'solid-js';
 import styles from '../style/ProgressBar.module.css';
 
 export interface ProgressBarProps {
@@ -23,7 +23,7 @@ const ProgressBar: Component<ProgressBarProps> = (props) => {
 
   return (
     <div class={styles.progress}>
-      <div class={styles.bar} ref={bar}></div>
+      <div class={styles.bar} ref={bar} />
     </div>
   );
 };
