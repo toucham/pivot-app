@@ -1,5 +1,5 @@
 import { createEffect, JSX, Show } from 'solid-js';
-import { createStore, unwrap } from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 import { Activity, Progress } from '../../model';
 import styles from '../../style/activities/NewActivityModal.module.css';
 import LeftArrowIcon from '../icons/LeftArrowIcon';
@@ -27,8 +27,7 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
       id: 0,
       name: '',
       timer: {
-        ongoing: false,
-        time: 0,
+        time_ms: 0,
       },
     },
     progressTime: {
@@ -59,8 +58,7 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
       id: 0,
       name: '',
       timer: {
-        ongoing: false,
-        time: 0,
+        time_ms: 0,
       },
     });
   };
@@ -75,12 +73,15 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
   const onSelectChange = (
     e: Event & { currentTarget: HTMLSelectElement; target: HTMLSelectElement },
   ) => {
-    if (e.target.value != '' && (e.target.value == 'goal' || e.target.value == 'limit')) {
+    const prog_type = parseInt(e.target.value);
+    if (e.target.value != '' && (prog_type == 0 || prog_type == 1)) {
       const prog: Progress = {
-        type: e.target.value,
-        time: 0,
+        t: prog_type,
+        time_ms: 0,
       };
       setState('activity', 'progress', prog);
+    } else {
+      console.error('Unidentified progress type');
     }
   };
 
@@ -101,7 +102,7 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
   return (
     <div ref={modalRef} class={styles.modal}>
       <div>
-        <div style="position: absolute">
+        <div style={{ position: 'absolute' }}>
           <LeftArrowIcon size="s" onClick={onClickBack} />
         </div>
         <form>

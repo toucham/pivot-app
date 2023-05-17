@@ -1,6 +1,6 @@
 import {
   Component,
-  createEffect,
+  createMemo,
   createSignal,
   Match,
   onCleanup,
@@ -10,7 +10,7 @@ import {
   useContext,
 } from 'solid-js';
 import { formatMs2Time } from '../../utils/timer';
-import { Activity, Progress, Time, Timer } from '../../model';
+import { Activity, Progress, Timer } from '../../model';
 import ProgressBar from '../ProgressBar';
 import PlayIcon from '../icons/PlayIcon';
 import StopIcon from '../icons/StopIcon';
@@ -25,7 +25,7 @@ export interface ActivityCardProps {
 
 interface InfoSectionProps {
   name: string;
-  time: Timer;
+  timer: Timer;
   progress?: Progress;
 }
 
@@ -36,11 +36,10 @@ const IconSection: Component<{ codePoint: number }> = (props) => (
 );
 
 const InfoSection: Component<InfoSectionProps> = (props) => {
-  const [time, setTime] = createSignal<Time>({ hr: '00', min: '00', sec: '00' });
-
-  createEffect(() => {
-    setTime(formatMs2Time(props.time.time));
-  }, props.time);
+  const formatTime = createMemo(() => {
+    const f = formatMs2Time(props.timer.time_ms);
+    return f;
+  }, props.timer.time_ms);
 
   return (
     <div class={styles.cardInfoSection}>
@@ -50,15 +49,15 @@ const InfoSection: Component<InfoSectionProps> = (props) => {
           <ProgressBar
             current={
               props.progress != undefined
-                ? Math.ceil((props.time.time / props.progress.time) * 100)
+                ? Math.ceil((props.timer.time_ms / props.progress.time_ms) * 100)
                 : 0
             }
-            variant={props.progress != undefined ? props.progress.type : 'goal'}
+            variant={props.progress?.t}
           />
         </div>
       </Show>
       <p>
-        {time().hr}:{time().min}:{time().sec}
+        {formatTime().hr}:{formatTime().min}:{formatTime().sec}
       </p>
     </div>
   );
@@ -152,10 +151,10 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
 
   return (
     <div id="card" class={styles.card}>
-      <IconSection codePoint={props.activity.icon} />
+      <IconSection codePoint={props.activity.icon ?? 0} />
       <InfoSection
         name={props.activity.name}
-        time={props.activity.timer}
+        timer={props.activity.timer}
         progress={props.activity.progress}
       />
       <TimerSection

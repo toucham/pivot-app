@@ -1,6 +1,6 @@
 /*@once*/
 
-import { Component, Show } from 'solid-js';
+import { Component, onMount, Show, useContext } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 import { Route, Routes, useLocation } from '@solidjs/router';
 // dashboard
@@ -9,10 +9,13 @@ import DashboardPage from './pages/DashboardPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import TimerPage from './pages/TimerPage';
 import EditPage from './pages/EditPage';
-import StateProvider from './StateContext';
+import { StateContext } from './StateContext';
 import styles from './style/App.module.css';
+import { invoke } from '@tauri-apps/api';
+import { Activity } from './model';
 
 const App: Component = () => {
+  const [_, { initActivities }] = useContext(StateContext);
   const loc = useLocation();
   const onClickMin = async () => {
     await appWindow.minimize();
@@ -22,8 +25,13 @@ const App: Component = () => {
     await appWindow.close();
   };
 
+  onMount(async () => {
+    const acts = await invoke<Activity[]>('query_activity');
+    initActivities(acts);
+  });
+
   return (
-    <StateProvider>
+    <>
       <Show when={!loc.pathname.includes('/timer')}>
         <div class={styles.titlebar} data-tauri-drag-region>
           <span onClick={onClickMin}>
@@ -58,7 +66,7 @@ const App: Component = () => {
         <Route path="/edit" component={EditPage} />
         <Route path="/dashboard" component={DashboardPage} />
       </Routes>
-    </StateProvider>
+    </>
   );
 };
 

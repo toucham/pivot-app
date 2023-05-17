@@ -3,7 +3,7 @@ import styles from '../style/ProgressBar.module.css';
 
 export interface ProgressBarProps {
   current: number;
-  variant?: 'goal' | 'limit';
+  variant?: 'Goal' | 'Limit';
 }
 
 const ProgressBar: Component<ProgressBarProps> = (props) => {
@@ -11,7 +11,7 @@ const ProgressBar: Component<ProgressBarProps> = (props) => {
 
   createEffect(() => {
     if (bar) {
-      if (props.variant != null && props.variant == 'limit') {
+      if (props.variant != null && props.variant == 'Goal') {
         bar.style.backgroundColor = 'rgba(255, 5, 5, 0.7)';
       }
       if (props.current > 0) {

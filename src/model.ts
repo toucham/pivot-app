@@ -4,8 +4,8 @@ export interface Group {
 }
 
 export interface Progress {
-  type: 'goal' | 'limit';
-  time: number;
+  t: 'Goal' | 'Limit'; // switch to match rust typing
+  time_ms: number;
 }
 
 export interface Time {
@@ -15,17 +15,31 @@ export interface Time {
 }
 
 export interface Timer {
-  time: number;
+  time_ms: number;
   start?: number;
   end?: number;
 }
 
 export interface Activity {
   id: number;
-  icon: number;
   name: string;
+  icon: number;
   timer: Timer;
-  description?: string;
+  rank: number;
+  desc?: string;
   group?: Group;
+  progress?: Progress;
+}
+
+export interface ActivityJson {
+  id: number;
+  name: string;
+  icon: number;
+  timer?: {
+    start_date: string;
+    end_date: string;
+  };
+  rank: number;
+  desc?: string;
   progress?: Progress;
 }

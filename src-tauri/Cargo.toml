@@ -21,6 +21,10 @@ tauri = { version = "1.2.4", features = ["macos-private-api", "window-all"] }
 objc = "0.2.7"
 cocoa = "0.24.1"
 window-vibrancy = "0.3.2"
+chrono = "0.4.24"
+r2d2_sqlite = "0.21.0"
+rusqlite = "0.28.0"
+r2d2 = "0.8.10"
 
 [features]
 # by default Tauri runs in production mode

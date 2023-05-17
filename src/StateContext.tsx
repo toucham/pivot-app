@@ -1,65 +1,6 @@
 import { Component, createContext, ParentProps } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { Activity } from './model';
-
-const mock: Activity[] = [
-  {
-    id: 1,
-    icon: 0x1f600,
-    name: 'Personal Project',
-    timer: {
-      time: 1000000,
-    },
-  },
-  {
-    id: 2,
-    icon: 0x1f3c3,
-    name: 'Workout',
-    progress: {
-      type: 'goal',
-      time: 600000,
-    },
-    timer: {
-      time: 240000,
-    },
-  },
-  {
-    id: 3,
-    icon: 0x1f3ae,
-    name: 'Gaming',
-    progress: {
-      type: 'limit',
-      time: 10000,
-    },
-    timer: {
-      time: 1000,
-    },
-  },
-  {
-    id: 4,
-    icon: 0x1f4da,
-    name: 'Homework',
-    timer: {
-      time: 0,
-    },
-  },
-  {
-    id: 5,
-    icon: 0x1f3b6,
-    name: 'Music',
-    timer: {
-      time: 0,
-    },
-  },
-  {
-    id: 6,
-    icon: 0x1f57a,
-    name: 'Entertainment',
-    timer: {
-      time: 0,
-    },
-  },
-];
+import { Activity, ActivityJson } from './model';
 
 interface StateStore {
   activities: Activity[];
@@ -67,6 +8,7 @@ interface StateStore {
 }
 
 interface OptStore {
+  initActivities: (a: ActivityJson[]) => void;
   addActivity: (a: Activity) => void;
   removeActivity: (id: number) => void;
   focusActivity: (id: number) => void;
@@ -79,6 +21,9 @@ type StoreContext = [StateStore, OptStore];
 export const StateContext = createContext<StoreContext>([
   { activities: [], currId: 0 },
   {
+    initActivities(a) {
+      console.log('initActivities: ' + JSON.stringify(a));
+    },
     addActivity(a: Activity) {
       console.log(a.id);
     },
@@ -100,13 +45,32 @@ export const StateContext = createContext<StoreContext>([
 
 const StateProvider: Component<ParentProps> = (props) => {
   const [state, setState] = createStore<StateStore>({
-    activities: mock,
+    activities: [],
     currId: 0,
   });
 
   const context: [StateStore, OptStore] = [
     state,
     {
+      initActivities(acts) {
+        const act: Activity[] = acts.map((a) => {
+          if (a.timer != undefined) {
+            return {
+              ...a,
+              timer: {
+                time_ms: Date.parse(a.timer.end_date) - Date.parse(a.timer.start_date),
+              },
+            };
+          }
+          return {
+            ...a,
+            timer: {
+              time_ms: 0,
+            },
+          };
+        });
+        setState('activities', act);
+      },
       addActivity(act: Activity) {
         act.id = Date.now();
         setState('activities', (a) => [...a, act]);
@@ -125,7 +89,7 @@ const StateProvider: Component<ParentProps> = (props) => {
           'activities',
           (a) => a.id == state.currId,
           'timer',
-          'time',
+          'time_ms',
           (t) => t + ms,
         );
       },
