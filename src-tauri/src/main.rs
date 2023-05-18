@@ -13,13 +13,52 @@ extern crate rusqlite;
 
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::params;
+use serde::{Deserialize, Serialize};
 
 pub struct DBPoolConnect(r2d2::Pool<SqliteConnectionManager>);
 
 mod activity;
 mod dashboard;
+mod timer;
 
 const DB_FILE_NAME: &str = "pivot_focus.db";
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ActivityJson {
+    // TODO: change to [u8] for optimization
+    id: u64, // id is based of JS Date
+    name: String,
+    desc: String,
+    icon: u64,                  // an icon is expressed in 1 byte
+    rank: u8,                   // order rank in activity page
+    time_ms: u64,               // the current time being tracked for today
+    progress: Option<Progress>, // for showing Progress
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Progress {
+    t: ProgressEnum,
+    time_ms: u64,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+enum ProgressEnum {
+    Goal = 0,
+    Limit = 1,
+    Error,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Timer {
+    start_date: String,
+    end_date: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ActivityTimerJson {
+    timer: Timer,
+    id: u64,
+}
 
 fn main() {
     tauri::Builder::default()
@@ -64,6 +103,8 @@ fn main() {
             // setup db table
             match pool.get() {
                 Ok(db) => {
+                    // set pragma for foreign key
+                    db.pragma_update(None, "foreign_keys", true).unwrap();
                     // create activity table
                     if let Err(e) = db.execute(
                         "CREATE TABLE IF NOT EXISTS activity(
@@ -71,10 +112,14 @@ fn main() {
                         name VARCHAR(30) NOT NULL,
                         desc TEXT,
                         icon INTEGER,
-                        rank INTEGER UNIQUE)",
+                        rank INTEGER UNIQUE,
+                        time_ms INTEGER NOT NULL DEFAULT 0,
+                        last_updated TEXT DEFAULT CURRENT_DATE
+                        )",
                         params![],
                     ) {
                         println!("Error at creating activity table:\n {:?}", e);
+                        panic!()
                     } else {
                         // creating timer table
                         if let Err(e) = db.execute(
@@ -112,7 +157,8 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            activity::save_activity,
+            timer::create_timer,
+            activity::update_activity_time,
             activity::query_activity,
             activity::create_activity,
             dashboard::get_activities,

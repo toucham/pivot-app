@@ -3,16 +3,14 @@
 import { Component, onMount, Show, useContext } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 import { Route, Routes, useLocation } from '@solidjs/router';
-// dashboard
 import DashboardPage from './pages/DashboardPage';
-//activities
 import ActivitiesPage from './pages/ActivitiesPage';
 import TimerPage from './pages/TimerPage';
 import EditPage from './pages/EditPage';
 import { StateContext } from './StateContext';
 import styles from './style/App.module.css';
 import { invoke } from '@tauri-apps/api';
-import { Activity } from './model';
+import { ActivityJson } from './model';
 
 const App: Component = () => {
   const [_, { initActivities }] = useContext(StateContext);
@@ -26,7 +24,7 @@ const App: Component = () => {
   };
 
   onMount(async () => {
-    const acts = await invoke<Activity[]>('query_activity');
+    const acts = await invoke<ActivityJson[]>('query_activity');
     initActivities(acts);
   });
 

@@ -35,11 +35,8 @@ export interface ActivityJson {
   id: number;
   name: string;
   icon: number;
-  timer?: {
-    start_date: string;
-    end_date: string;
-  };
   rank: number;
+  time_ms: number;
   desc?: string;
   progress?: Progress;
 }

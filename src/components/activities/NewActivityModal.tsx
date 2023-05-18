@@ -29,6 +29,7 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
       timer: {
         time_ms: 0,
       },
+      rank: 1,
     },
     progressTime: {
       hr: 0,
@@ -73,8 +74,8 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
   const onSelectChange = (
     e: Event & { currentTarget: HTMLSelectElement; target: HTMLSelectElement },
   ) => {
-    const prog_type = parseInt(e.target.value);
-    if (e.target.value != '' && (prog_type == 0 || prog_type == 1)) {
+    const prog_type = e.target.value;
+    if (e.target.value != '' && (prog_type == 'Goal' || prog_type == 'Limit')) {
       const prog: Progress = {
         t: prog_type,
         time_ms: 0,
@@ -102,7 +103,7 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
   return (
     <div ref={modalRef} class={styles.modal}>
       <div>
-        <div style={{ position: 'absolute' }}>
+        <div>
           <LeftArrowIcon size="s" onClick={onClickBack} />
         </div>
         <form>
@@ -127,8 +128,8 @@ function NewActivityModal(props: NewActivityModalProps): JSX.Element {
             <label> Progress: </label>
             <select name="progress_type" onChange={onSelectChange}>
               <option value="" />
-              <option value="goal">goal</option>
-              <option value="limit">limit</option>
+              <option value="Goal">goal</option>
+              <option value="Limit">limit</option>
             </select>
             <Show when={state.activity.progress}>
               <div class={styles.timer}>

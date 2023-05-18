@@ -53,22 +53,12 @@ const StateProvider: Component<ParentProps> = (props) => {
     state,
     {
       initActivities(acts) {
-        const act: Activity[] = acts.map((a) => {
-          if (a.timer != undefined) {
-            return {
-              ...a,
-              timer: {
-                time_ms: Date.parse(a.timer.end_date) - Date.parse(a.timer.start_date),
-              },
-            };
-          }
-          return {
-            ...a,
-            timer: {
-              time_ms: 0,
-            },
-          };
-        });
+        const act: Activity[] = acts.map((a) => ({
+          ...a,
+          timer: {
+            time_ms: a.time_ms,
+          },
+        }));
         setState('activities', act);
       },
       addActivity(act: Activity) {

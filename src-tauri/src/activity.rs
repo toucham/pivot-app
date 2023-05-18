@@ -1,43 +1,7 @@
+use super::{ActivityJson, Progress, ProgressEnum};
+use chrono::{NaiveDate, Utc};
 use rusqlite::params;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use tauri::State;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ActivityJson {
-    // TODO: change to [u8] for optimization
-    id: u64, // id is based of JS Date
-    name: String,
-    desc: String,
-    icon: u64,                  // an icon is expressed in 1 byte
-    rank: u8,                   // order rank in activity page
-    progress: Option<Progress>, // for showing Progress
-    timer: Option<Timer>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Progress {
-    t: ProgressEnum,
-    time_ms: u64,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-enum ProgressEnum {
-    Goal = 0,
-    Limit = 1,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Timer {
-    start_date: String,
-    end_date: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ActivityTimer {
-    timer: Timer,
-    id: u64,
-}
 
 /// Create new activity according to the args sent from the frontend
 #[tauri::command]
@@ -54,10 +18,29 @@ pub async fn create_activity(
     Ok(())
 }
 
-/// Save the activity time after the user clicked stop (not pause) on the app
+/// Update the time_ms in activity table of the row
 #[tauri::command]
-pub fn save_activity(act: ActivityTimer) -> Result<(), &'static str> {
-    Ok(())
+pub fn update_activity_time(
+    pool_state: State<'_, super::DBPoolConnect>,
+    time_ms: u64,
+    id: u64,
+) -> Result<(), &'static str> {
+    // TODO: delete this
+    println!("invoking update_activity_time");
+
+    match pool_state.0.get() {
+        Ok(db) => {
+            if let Err(e) = db.execute("", params![id, time_ms]) {
+                println!("{:?}", e);
+                return Err("Error updating a row in activity table");
+            }
+            Ok(())
+        }
+        Err(e) => {
+            println!("{:?}", e);
+            Err("Error getting a connection from the pool")
+        }
+    }
 }
 
 /// Load the activities from the save files located at LOCAL_DATA, provided by tauri,
@@ -66,76 +49,68 @@ pub fn save_activity(act: ActivityTimer) -> Result<(), &'static str> {
 pub fn query_activity(
     pool_state: State<'_, super::DBPoolConnect>,
 ) -> Result<Vec<ActivityJson>, &'static str> {
+    // TODO: remove this
     println!("invoking query_activity");
-    let mut acts = vec![];
     // query activities
     match pool_state.0.get() {
         Ok(db) => {
-            let mut stm_time = db
-                .prepare(
-                    "SELECT DISTINCT 
-                    activity_id, MAX(start_date), end_date from timer
-                    where date(start_date, 'start of day')=date('now', 'start of day') 
-                    group by activity_id",
-                )
-                .unwrap();
-            let mut timer: HashMap<u64, Timer> = stm_time
-                .query_map([], |rows| {
-                    let t = Timer {
-                        start_date: rows.get(1).unwrap(),
-                        end_date: rows.get(2).unwrap(),
-                    };
-                    Ok((rows.get(0).unwrap(), t))
-                })
-                .unwrap()
-                .into_iter()
-                .filter_map(|f| f.ok())
-                .map(|f| (f.0, f.1))
-                .collect();
             let mut stm = db
                 .prepare(
-                    "SELECT * FROM activity 
-                    LEFT JOIN progress 
-                    ON progress.activity_id = activity.id",
+                    "SELECT a.id, a.name, a.desc, a.icon, a.rank, a.time_ms, 
+                        a.last_updated, p.time_ms, p.type
+                    FROM activity as a
+                    LEFT JOIN progress as p ON p.activity_id = a.id",
                 )
                 .unwrap();
-            acts.extend(
-                stm.query_map([], |rows| {
+            let queried_activities: Vec<ActivityJson> = stm
+                .query_map([], |rows| {
                     // TODO: check for better error handling => less verbose
                     let mut prog: Option<Progress> = None;
-                    if let Ok(time_ms) = rows.get::<usize, u64>(6) {
+                    if let Ok(time_ms) = rows.get::<usize, u64>(7) {
                         prog = Some(Progress {
                             time_ms,
-                            t: match rows.get(7).unwrap() {
+                            t: match rows.get::<usize, u64>(8).unwrap() {
                                 0 => ProgressEnum::Limit,
-                                _ => ProgressEnum::Goal,
+                                1 => ProgressEnum::Goal,
+                                _ => ProgressEnum::Error,
                             },
                         });
                     }
-                    let id = rows.get(0).unwrap();
+
+                    // get time_ms
+                    let last_updated = rows.get::<usize, String>(6).unwrap();
+                    let mut time_ms = 0;
+                    let today_date = Utc::now().date_naive();
+                    let date_updated =
+                        NaiveDate::parse_from_str(last_updated.as_str(), "%Y-%m-%d")
+                            .unwrap_or(today_date);
+                    // if last_updated is today then time_ms from sql is usable
+                    if date_updated.eq(&today_date) {
+                        time_ms = rows.get::<usize, u64>(5).unwrap();
+                    }
                     let a = ActivityJson {
-                        id,
+                        id: rows.get(0).unwrap(),
                         name: rows.get(1).unwrap(),
                         desc: rows.get(2).unwrap_or(String::from("")),
                         icon: rows.get(3).unwrap_or(0),
                         rank: rows.get(4).unwrap(),
                         progress: prog,
-                        timer: timer.remove(&id),
+                        time_ms,
                     };
                     Ok(a)
                 })
                 .unwrap()
                 .into_iter()
                 .filter_map(|f| f.ok())
-                .collect::<Vec<_>>(),
-            );
+                .collect();
+            Ok(queried_activities)
         }
         Err(e) => {
             println!(
                 "Error at query activities, getting connection pool: {:?}",
                 e
             );
+            Err("Error at getting connection pool")
         }
-    };
-    Ok(acts)
+    }
 }

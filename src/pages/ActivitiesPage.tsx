@@ -15,6 +15,7 @@ const ActivitiesPage: Component = () => {
 
   let wsDivRef: HTMLDivElement | undefined;
   let unlisten: Promise<UnlistenFn>;
+
   onMount(() => {
     appWindow.setSize(new LogicalSize(340, 600));
     unlisten = listen(TauriEvent.WINDOW_MOVED, async () => {

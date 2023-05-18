@@ -1,15 +1,18 @@
-INSERT OR IGNORE INTO activity(id, name, desc, rank, icon)
+PRAGMA foreign_keys=ON;
+
+INSERT OR IGNORE INTO activity(id, name, desc, rank, icon, time_ms, last_updated)
 VALUES 
-(1, 'Workout', 'This is a workout timer tracker', 1, 128512),
-(2, 'Project', 'for tracking working on project', 2, 127939),
-(3, 'Homework', 'for tracking on doing homework', 3, 128218),
-(4, 'Gaming', NULL, 4, 127918);
+(1, 'Workout', 'This is a workout timer tracker', 1, 128512, 360000, date('now')),
+(2, 'Project', 'for tracking working on project', 2, 127939, 10000, date('now', 'start of month')),
+(3, 'Homework', 'for tracking on doing homework', 3, 128218, 25000, date('now')),
+(4, 'Gaming', NULL, 4, 127918, 360000, date('now')),
+(5, 'Reading', NULL, 5, 128512, 360000, date('now', 'start of year'));
 
 INSERT OR IGNORE INTO progress(time_ms, type, activity_id)
 VALUES 
 (10800000, 0, 1),
-(3600000, 1, 4),
-(10800000, 0, 2);
+(10800000, 0, 2),
+(3600000, 1, 4);
 
 INSERT OR IGNORE INTO timer(activity_id, start_date, end_date)
 VALUES
