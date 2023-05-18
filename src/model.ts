@@ -40,3 +40,11 @@ export interface ActivityJson {
   desc?: string;
   progress?: Progress;
 }
+
+export interface ActivityTimerJson {
+  id: number;
+  timer: {
+    start_date: string;
+    end_date: string;
+  };
+}

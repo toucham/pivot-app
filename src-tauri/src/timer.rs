@@ -4,18 +4,18 @@ use tauri::State;
 
 /// Save the activity time after the user clicked stop (not pause) on the app
 #[tauri::command]
-pub fn create_timer(
+pub async fn create_timer(
     pool_state: State<'_, super::DBPoolConnect>,
     act: ActivityTimerJson,
 ) -> Result<(), &'static str> {
     // TODO: delete this
-    println!("invoking save_activity");
+    println!("invoking create_timer");
 
     match pool_state.0.get() {
         Ok(db) => {
             if let Err(e) = db.execute(
                 "INSERT INTO timer(activity_id, start_date, end_date)
-                VALUES (?, ?, ?)",
+                VALUES (?1, ?2, ?3)",
                 params![act.id, act.timer.start_date, act.timer.end_date],
             ) {
                 println!("{:?}", e);
@@ -24,7 +24,7 @@ pub fn create_timer(
         }
         Err(e) => {
             println!("{:?}", e);
-            return Err("Unable to get db connection from pool");
+            return Err("Error getting db connection from the pool");
         }
     }
 

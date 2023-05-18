@@ -10,7 +10,7 @@ import {
   useContext,
 } from 'solid-js';
 import { formatMs2Time } from '../../utils/timer';
-import { Activity, Progress, Timer } from '../../model';
+import { Activity, ActivityTimerJson, Progress, Timer } from '../../model';
 import ProgressBar from '../ProgressBar';
 import PlayIcon from '../icons/PlayIcon';
 import StopIcon from '../icons/StopIcon';
@@ -18,6 +18,7 @@ import { useNavigate } from '@solidjs/router';
 import { StateContext } from '../../StateContext';
 import styles from '../../style/activities/ActivityCard.module.css';
 import PauseIcon from '../icons/PauseIcon';
+import { invoke } from '@tauri-apps/api';
 
 export interface ActivityCardProps {
   activity: Activity;
@@ -65,6 +66,8 @@ const InfoSection: Component<InfoSectionProps> = (props) => {
 
 interface TimerSectionProps {
   activityId: number;
+  timeMs: number;
+  startTime: Date;
   onClickPlayTimer: () => void;
   onClickPauseTimer: () => void;
 }
@@ -74,7 +77,30 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
   const [state, { focusActivity, unfocusActivity }] = useContext(StateContext);
   const nav = useNavigate();
 
-  const onClickPause = () => {
+  const invokeUpdateActivityTime = async () => {
+    invoke('update_activity_time', { id: state.currId, timeMs: props.timeMs })
+      .catch((e) => console.error(e))
+      .then(() => console.log('successful update'));
+  };
+
+  const invokeCreateTimer = async () => {
+    const endDate = new Date();
+    // only save if it is more than a minute
+    if (endDate.getTime() - props.startTime.getTime() >= 6000) {
+      const act: ActivityTimerJson = {
+        id: state.currId,
+        timer: {
+          start_date: props.startTime.toISOString(),
+          end_date: endDate.toISOString(),
+        },
+      };
+      invoke('create_timer', { act })
+        .catch((e) => console.error(e))
+        .then(() => console.log('successful create'));
+    }
+  };
+  const onClickPause = async () => {
+    invokeCreateTimer();
     setIsPause(!isPause());
     props.onClickPauseTimer();
   };
@@ -84,7 +110,11 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
     props.onClickPlayTimer();
   };
 
-  const onClickStop = () => {
+  const onClickStop = async () => {
+    if (!isPause()) {
+      invokeCreateTimer();
+    }
+    invokeUpdateActivityTime();
     unfocusActivity();
     nav('/');
   };
@@ -158,6 +188,8 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
         progress={props.activity.progress}
       />
       <TimerSection
+        timeMs={props.activity.timer.time_ms}
+        startTime={new Date(startTime())}
         activityId={props.activity.id}
         onClickPlayTimer={onClickPlayTimer}
         onClickPauseTimer={onClickPauseTimer}

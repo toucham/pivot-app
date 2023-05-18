@@ -20,7 +20,7 @@ pub async fn create_activity(
 
 /// Update the time_ms in activity table of the row
 #[tauri::command]
-pub fn update_activity_time(
+pub async fn update_activity_time(
     pool_state: State<'_, super::DBPoolConnect>,
     time_ms: u64,
     id: u64,
@@ -30,7 +30,12 @@ pub fn update_activity_time(
 
     match pool_state.0.get() {
         Ok(db) => {
-            if let Err(e) = db.execute("", params![id, time_ms]) {
+            if let Err(e) = db.execute(
+                "UPDATE activity
+                SET time_ms = ?2, last_updated=date('now')
+                WHERE id = ?1",
+                params![id, time_ms],
+            ) {
                 println!("{:?}", e);
                 return Err("Error updating a row in activity table");
             }
@@ -46,7 +51,7 @@ pub fn update_activity_time(
 /// Load the activities from the save files located at LOCAL_DATA, provided by tauri,
 /// to be display on the activity page
 #[tauri::command]
-pub fn query_activity(
+pub async fn query_activity(
     pool_state: State<'_, super::DBPoolConnect>,
 ) -> Result<Vec<ActivityJson>, &'static str> {
     // TODO: remove this
