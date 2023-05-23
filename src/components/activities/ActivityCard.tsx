@@ -78,9 +78,9 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
   const nav = useNavigate();
 
   const invokeUpdateActivityTime = async () => {
-    invoke('update_activity_time', { id: state.currId, timeMs: props.timeMs })
-      .catch((e) => console.error(e))
-      .then(() => console.log('successful update'));
+    invoke('update_activity_time', { id: state.currId, timeMs: props.timeMs }).catch((e) =>
+      console.error(e),
+    );
   };
 
   const invokeCreateTimer = async () => {
@@ -94,9 +94,7 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
           end_date: endDate.toISOString(),
         },
       };
-      invoke('create_timer', { act })
-        .catch((e) => console.error(e))
-        .then(() => console.log('successful create'));
+      invoke('create_timer', { act }).catch((e) => console.error(e));
     }
   };
   const onClickPause = async () => {

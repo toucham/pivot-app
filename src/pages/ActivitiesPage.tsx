@@ -1,30 +1,40 @@
-import { Component, createSignal, For, onCleanup, onMount, useContext } from 'solid-js';
+import { Component, createSignal, For, onMount, useContext } from 'solid-js';
 import styles from '../style/activities/ActivitiesPage.module.css';
 import ActivityCard from '../components/activities/ActivityCard';
 import NewActivityModal from '../components/activities/NewActivityModal';
 import { StateContext } from '../StateContext';
-import { appWindow, LogicalSize } from '@tauri-apps/api/window';
-import { listen, TauriEvent, UnlistenFn } from '@tauri-apps/api/event';
+import { WebviewWindow } from '@tauri-apps/api/window';
 import DashboardIcon from '../components/icons/DashboardIcon';
 import AddIcon from '../components/icons/AddIcon';
 import EditIcon from '../components/icons/EditIcon';
+import { invoke } from '@tauri-apps/api';
+import { TauriEvent } from '@tauri-apps/api/event';
+import { ActivityJson } from '../model';
 
 const ActivitiesPage: Component = () => {
   const [state, { addActivity }] = useContext(StateContext);
   const [isOpenedAdd, setIsOpenedAdd] = createSignal<boolean>(false);
+  const [_, { initActivities }] = useContext(StateContext);
 
   let wsDivRef: HTMLDivElement | undefined;
-  let unlisten: Promise<UnlistenFn>;
 
-  onMount(() => {
-    appWindow.setSize(new LogicalSize(340, 600));
-    unlisten = listen(TauriEvent.WINDOW_MOVED, async () => {
-      await appWindow.setSize(new LogicalSize(340, 600));
+  let wv: WebviewWindow;
+
+  const onClickAdd = async () => {
+    await invoke('new_window');
+    const addWindow = WebviewWindow.getByLabel('new_window');
+    addWindow?.listen(TauriEvent.WINDOW_DESTROYED, () => {
+      init();
     });
-  });
+  };
 
-  onCleanup(() => {
-    unlisten.then((u) => u());
+  const init = async () => {
+    const acts = await invoke<ActivityJson[]>('query_activity');
+    initActivities(acts);
+  };
+
+  onMount(async () => {
+    init();
   });
 
   return (
@@ -49,14 +59,10 @@ const ActivitiesPage: Component = () => {
       <div class={styles.barContainer}>
         <menu class={styles.bottomBar}>
           <li>
-            <DashboardIcon />
+            <DashboardIcon onClick={() => wv.emit('new-activity-page')} />
           </li>
           <li>
-            <AddIcon
-              onClick={() => {
-                setIsOpenedAdd(true);
-              }}
-            />
+            <AddIcon onClick={onClickAdd} />
           </li>
           <li>
             <EditIcon />

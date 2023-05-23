@@ -9,7 +9,6 @@ import {
 } from 'solid-js';
 import { StateContext } from '../StateContext';
 import { appWindow, LogicalSize } from '@tauri-apps/api/window';
-import { listen, UnlistenFn, TauriEvent } from '@tauri-apps/api/event';
 import styles from '../style/TimerPage.module.css';
 import ActivityCard from '../components/activities/ActivityCard';
 import { Activity } from '../model';
@@ -17,7 +16,6 @@ import { Activity } from '../model';
 const TimerPage: Component = () => {
   const [state, _] = useContext(StateContext);
   const [act, setAct] = createSignal<Activity>();
-  let unlisten: Promise<UnlistenFn>;
 
   createEffect(() => {
     if (state.currId != 0) {
@@ -27,15 +25,12 @@ const TimerPage: Component = () => {
 
   onMount(() => {
     appWindow.setSize(new LogicalSize(300, 100));
-    unlisten = listen(TauriEvent.WINDOW_MOVED, async () => {
-      await appWindow.setSize(new LogicalSize(300, 100));
-    });
     appWindow.setAlwaysOnTop(true);
   });
 
   onCleanup(() => {
-    unlisten.then((u) => u());
     appWindow.setAlwaysOnTop(false);
+    appWindow.setSize(new LogicalSize(340, 600));
   });
 
   return (

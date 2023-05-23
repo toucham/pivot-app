@@ -1,5 +1,3 @@
-PRAGMA foreign_keys=ON;
-
 INSERT OR IGNORE INTO activity(id, name, desc, rank, icon, time_ms, last_updated)
 VALUES 
 (1, 'Workout', 'This is a workout timer tracker', 1, 128512, 360000, date('now')),

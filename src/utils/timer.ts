@@ -25,3 +25,7 @@ export const formatMs2Time = (ms: number): Time => {
   }
   return time;
 };
+
+export const formatTime2Ms = (time: { hr: number; min: number; sec: number }): number => {
+  return 3600000 * time.hr + 60000 * time.min + 1000 * time.sec;
+};

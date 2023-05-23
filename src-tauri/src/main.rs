@@ -28,7 +28,7 @@ pub struct ActivityJson {
     // TODO: change to [u8] for optimization
     id: u64, // id is based of JS Date
     name: String,
-    desc: String,
+    desc: Option<String>,
     icon: u64,                  // an icon is expressed in 1 byte
     rank: u8,                   // order rank in activity page
     time_ms: u64,               // the current time being tracked for today
@@ -159,6 +159,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             timer::create_timer,
             activity::update_activity_time,
+            activity::new_window,
             activity::query_activity,
             activity::create_activity,
             dashboard::get_activities,
