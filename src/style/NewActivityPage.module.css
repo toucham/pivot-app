@@ -32,3 +32,13 @@
   font-size: 4rem;
   margin: 0;
 }
+
+.descbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.descbox>textarea {
+  resize: none;
+  min-height: 3rem;
+}

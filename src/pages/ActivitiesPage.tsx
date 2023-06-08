@@ -22,7 +22,7 @@ const ActivitiesPage: Component = () => {
   let wv: WebviewWindow;
 
   const onClickAdd = async () => {
-    await invoke('new_window');
+    await invoke('new_window', { rank: state.activities.length + 1 });
     const addWindow = WebviewWindow.getByLabel('new_window');
     addWindow?.listen(TauriEvent.WINDOW_DESTROYED, () => {
       init();

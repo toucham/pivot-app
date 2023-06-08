@@ -11,6 +11,8 @@ body {
   -ms-user-select: none;
   user-select: none;
   scroll-behavior: smooth;
+
+  font-family: 'Trebuchet MS', sans-serif;
 }
 
 body::-webkit-scrollbar {

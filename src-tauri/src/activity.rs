@@ -18,9 +18,15 @@ pub async fn create_activity(
         Ok(db) => {
             if let Err(e) = db.execute(
                 "INSERT INTO
-                 activity(id, name, rank, icon, time_ms, last_updated)
-                 VALUES (?1, ?2, ?3, ?4, 0, date('now'))",
-                params![new_act.id, new_act.name, new_act.rank, new_act.icon],
+                 activity(id, name, rank, icon, time_ms, desc, last_updated)
+                 VALUES (?1, ?2, ?3, ?4, 0, ?5, date('now'))",
+                params![
+                    new_act.id,
+                    new_act.name,
+                    new_act.rank,
+                    new_act.icon,
+                    new_act.desc
+                ],
             ) {
                 println!("{:?}", e);
                 return Err("Error creating a new activity");
@@ -106,9 +112,9 @@ pub async fn query_activity(
                 .query_map([], |rows| {
                     // TODO: check for better error handling => less verbose
                     let mut prog: Option<Progress> = None;
-                    if let Ok(time_ms) = rows.get::<usize, u64>(7) {
+                    if let Ok(prog_time_ms) = rows.get::<usize, u64>(7) {
                         prog = Some(Progress {
-                            time_ms,
+                            time_ms: prog_time_ms,
                             t: match rows.get::<usize, u64>(8).unwrap() {
                                 0 => ProgressEnum::Limit,
                                 1 => ProgressEnum::Goal,
@@ -158,14 +164,17 @@ pub async fn query_activity(
 }
 
 #[tauri::command]
-pub fn new_window(handle: tauri::AppHandle) -> Result<(), &'static str> {
+pub fn new_window(
+    handle: tauri::AppHandle,
+    rank: u64,
+) -> Result<(), &'static str> {
     println!("opening new window");
     let window_config = WindowConfig {
         label: "new_window".into(),
-        url: tauri::WindowUrl::App("/new".into()),
+        url: tauri::WindowUrl::App(format!("/new/{}", rank).into()),
         resizable: false,
         title: "New Activity".into(),
-        max_height: Some(300.0),
+        max_height: Some(350.0),
         max_width: Some(400.0),
         ..handle.config().tauri.windows.get(0).unwrap().clone()
     };
@@ -212,7 +221,7 @@ pub fn delete_activity(
 ) -> Result<(), &'static str> {
     match pool_state.0.get() {
         Ok(db) => {
-            println!("id: {}", id);
+            println!("deleting activity with id: {}", id);
             if let Err(e) =
                 db.execute("DELETE FROM activity WHERE id=?1", params![id])
             {

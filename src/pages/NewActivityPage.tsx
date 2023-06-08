@@ -1,11 +1,11 @@
-import { Component, createSignal, Show, useContext } from 'solid-js';
+import { Component, createSignal, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { ActivityJson } from '../model';
+import { ActivityJson, Progress } from '../model';
 import styles from '../style/NewActivityPage.module.css';
 import { appWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api';
-import { StateContext } from '../StateContext';
-import { formatTime2Ms } from '../utils/timer';
+import { formatTime2Ms, TimeUtils } from '../utils/timer';
+import { useParams } from '@solidjs/router';
 
 interface NewActivityStore {
   activity: ActivityJson;
@@ -32,9 +32,11 @@ const IconSection: Component<IconSectionProps> = (props) => {
 };
 
 const NewActivityPage: Component = () => {
-  const [context, _] = useContext(StateContext);
+  const [progress, setProgress] = createSignal<string | undefined>(undefined);
+  const [progTimer, setProgTimer] = createSignal<TimeUtils>({ hr: 0, min: 0, sec: 0 });
   const [codePoint, setCodePoint] = createSignal(0x1f600);
   const [inputCP, setInputCP] = createSignal('1f600');
+  const params = useParams<{ rank: string }>();
   const [state, setState] = createStore<NewActivityStore>({
     activity: {
       icon: 0x1f600,
@@ -42,6 +44,8 @@ const NewActivityPage: Component = () => {
       name: '',
       time_ms: 0,
       rank: 1,
+      desc: '',
+      progress: undefined,
     },
   });
 
@@ -51,17 +55,53 @@ const NewActivityPage: Component = () => {
     setCodePoint(cp);
   };
 
+  const onChangeProgTimer = (type: string, value: number) => {
+    const progT = progTimer();
+    switch (type) {
+      case 'hr': {
+        if (typeof value == 'number' && value >= 0 && value <= 24) {
+          setProgTimer({ ...progT, hr: value });
+        }
+        break;
+      }
+      case 'min': {
+        if (typeof value == 'number' && value >= 0 && value <= 59) {
+          setProgTimer({ ...progT, min: value });
+        }
+        break;
+      }
+      case 'sec': {
+        if (typeof value == 'number' && value >= 0 && value <= 59) {
+          setProgTimer({ ...progT, sec: value });
+        }
+        break;
+      }
+      default: {
+        console.error('Unidentified type of progress timer');
+      }
+    }
+  };
+
   const onSubmit = async () => {
     if (state.activity.name == '') {
       return;
     }
+    const progstate = progress();
+    let prog: Progress | undefined = undefined;
+    if (progstate) {
+      prog = {
+        t: progstate as 'Goal' | 'Limit',
+        time_ms: formatTime2Ms(progTimer()),
+      };
+    }
     const new_act: ActivityJson = {
       id: Date.now(),
-      rank: context.activities.length,
+      rank: parseInt(params.rank),
       icon: codePoint(),
       name: state.activity.name,
       time_ms: 0,
-      desc: '',
+      progress: prog,
+      desc: state.activity.desc,
     };
     if (state.progress != null && (state.progress.t == 'Goal' || state.progress.t == 'Limit')) {
       new_act.progress = {
@@ -109,23 +149,56 @@ const NewActivityPage: Component = () => {
             value={state.activity.name}
           />
         </div>
+        <div class={styles.descbox}>
+          <label> Description: </label>
+          <textarea
+            maxlength={50}
+            onInput={(e) => {
+              setState('activity', 'desc', e.target.value);
+            }}
+          />
+        </div>
         <div>
           <label> Progress: </label>
           <select
             name="progress_type"
             onChange={(e) => {
-              console.log(e.target.value);
+              if (e.target.value != 'Goal' && e.target.value != 'Limit') {
+                setProgress(undefined);
+              } else {
+                setProgress(e.target.value);
+              }
             }}
           >
             <option value="" />
-            <option value="Goal">goal</option>
-            <option value="Limit">limit</option>
+            <option value="Goal">Goal</option>
+            <option value="Limit">Limit</option>
           </select>
-          <Show when={state.activity.progress}>
+          <Show when={progress() != undefined}>
             <div class={styles.timer}>
-              <input type="number" placeholder="HH" min={0} max={24} />:
-              <input type="number" placeholder="MM" min={0} max={59} />:
-              <input type="number" placeholder="SS" min={0} max={59} />
+              <input
+                type="number"
+                placeholder="HH"
+                onInput={(e) => onChangeProgTimer('hr', parseInt(e.target.value))}
+                min={0}
+                max={24}
+              />
+              :
+              <input
+                type="number"
+                placeholder="MM"
+                onInput={(e) => onChangeProgTimer('min', parseInt(e.target.value))}
+                min={0}
+                max={59}
+              />
+              :
+              <input
+                type="number"
+                placeholder="SS"
+                onInput={(e) => onChangeProgTimer('sec', parseInt(e.target.value))}
+                min={0}
+                max={59}
+              />
             </div>
           </Show>
         </div>

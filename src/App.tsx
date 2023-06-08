@@ -51,7 +51,7 @@ const App: Component = () => {
       </Show>
       <Routes>
         <Route path="/" component={ActivitiesPage} />
-        <Route path="/new" component={NewActivityPage} />
+        <Route path="/new/:rank" component={NewActivityPage} />
         <Route path="/timer" component={TimerPage} />
         <Route path="/edit" component={EditPage} />
         <Route path="/dashboard" component={DashboardPage} />
