@@ -61,6 +61,7 @@ const NewActivityPage: Component = () => {
       icon: codePoint(),
       name: state.activity.name,
       time_ms: 0,
+      desc: '',
     };
     if (state.progress != null && (state.progress.t == 'Goal' || state.progress.t == 'Limit')) {
       new_act.progress = {

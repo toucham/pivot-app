@@ -14,6 +14,7 @@ import { ActivityJson } from '../model';
 const ActivitiesPage: Component = () => {
   const [state, { addActivity }] = useContext(StateContext);
   const [isOpenedAdd, setIsOpenedAdd] = createSignal<boolean>(false);
+  const [isEdit, setIsEdit] = createSignal(false);
   const [_, { initActivities }] = useContext(StateContext);
 
   let wsDivRef: HTMLDivElement | undefined;
@@ -44,7 +45,7 @@ const ActivitiesPage: Component = () => {
           <For each={state.activities}>
             {(a) => (
               <div class={styles.cardBorder}>
-                <ActivityCard activity={a} />
+                <ActivityCard activity={a} isEdit={isEdit()} />
               </div>
             )}
           </For>
@@ -65,7 +66,7 @@ const ActivitiesPage: Component = () => {
             <AddIcon onClick={onClickAdd} />
           </li>
           <li>
-            <EditIcon />
+            <EditIcon onClick={() => setIsEdit(!isEdit())} />
           </li>
         </menu>
       </div>

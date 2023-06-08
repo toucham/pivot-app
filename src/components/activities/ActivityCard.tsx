@@ -19,9 +19,11 @@ import { StateContext } from '../../StateContext';
 import styles from '../../style/activities/ActivityCard.module.css';
 import PauseIcon from '../icons/PauseIcon';
 import { invoke } from '@tauri-apps/api';
+import TrashIcon from '../icons/TrashIcon';
 
 export interface ActivityCardProps {
   activity: Activity;
+  isEdit: boolean;
 }
 
 interface InfoSectionProps {
@@ -70,11 +72,12 @@ interface TimerSectionProps {
   startTime: Date;
   onClickPlayTimer: () => void;
   onClickPauseTimer: () => void;
+  isEdit: boolean;
 }
 
 const TimerSection: Component<TimerSectionProps> = (props) => {
   const [isPause, setIsPause] = createSignal(false);
-  const [state, { focusActivity, unfocusActivity }] = useContext(StateContext);
+  const [state, { focusActivity, unfocusActivity, deleteActivity }] = useContext(StateContext);
   const nav = useNavigate();
 
   const invokeUpdateActivityTime = async () => {
@@ -122,6 +125,15 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
     nav('/timer');
   };
 
+  const onClickDelete = async () => {
+    try {
+      await invoke('delete_activity', { id: props.activityId });
+      deleteActivity(props.activityId);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div class={styles.cardTimerSection}>
       <Switch fallback={<div>404 Not Found</div>}>
@@ -137,7 +149,14 @@ const TimerSection: Component<TimerSectionProps> = (props) => {
           </Switch>
         </Match>
         <Match when={state.currId != props.activityId}>
-          <PlayIcon onClick={onClickPlay} />
+          <Switch>
+            <Match when={!props.isEdit}>
+              <PlayIcon onClick={onClickPlay} />
+            </Match>
+            <Match when={props.isEdit}>
+              <TrashIcon onClick={onClickDelete} />
+            </Match>
+          </Switch>
         </Match>
       </Switch>
     </div>
@@ -186,6 +205,7 @@ const ActivityCard: Component<ActivityCardProps> = (props) => {
         progress={props.activity.progress}
       />
       <TimerSection
+        isEdit={props.isEdit}
         timeMs={props.activity.timer.time_ms}
         startTime={new Date(startTime())}
         activityId={props.activity.id}

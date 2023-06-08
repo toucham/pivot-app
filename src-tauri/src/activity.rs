@@ -133,7 +133,7 @@ pub async fn query_activity(
                     let a = ActivityJson {
                         id: rows.get(0).unwrap(),
                         name: rows.get(1).unwrap(),
-                        desc: Some(rows.get(2).unwrap_or(String::from(""))),
+                        desc: rows.get(2).unwrap_or(String::from("")),
                         icon: rows.get(3).unwrap_or(0),
                         rank: rows.get(4).unwrap(),
                         progress: prog,
@@ -198,6 +198,31 @@ pub fn new_window(handle: tauri::AppHandle) -> Result<(), &'static str> {
         Err(e) => {
             println!("{:?}", e);
             return Err("Error at creating new window for new activity page");
+        }
+    }
+
+    Ok(())
+}
+
+/// Deleting an activity with the given id from the DB
+#[tauri::command]
+pub fn delete_activity(
+    pool_state: State<'_, super::DBPoolConnect>,
+    id: u64,
+) -> Result<(), &'static str> {
+    match pool_state.0.get() {
+        Ok(db) => {
+            println!("id: {}", id);
+            if let Err(e) =
+                db.execute("DELETE FROM activity WHERE id=?1", params![id])
+            {
+                println!("{:?}", e);
+                return Err("Error at deleting an activity");
+            }
+        }
+        Err(e) => {
+            println!("{:?}", e);
+            return Err("Error at getting connection from the pool");
         }
     }
 

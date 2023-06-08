@@ -14,6 +14,7 @@ interface OptStore {
   focusActivity: (id: number) => void;
   unfocusActivity: () => void;
   addCurrTime: (ms: number) => void;
+  deleteActivity: (id: number) => void;
 }
 
 type StoreContext = [StateStore, OptStore];
@@ -39,6 +40,9 @@ export const StateContext = createContext<StoreContext>([
     },
     addCurrTime(ms: number) {
       console.log('ms added: ' + ms);
+    },
+    deleteActivity(id: number) {
+      console.log('delete activity: ', id);
     },
   },
 ]);
@@ -82,6 +86,9 @@ const StateProvider: Component<ParentProps> = (props) => {
           'time_ms',
           (t) => t + ms,
         );
+      },
+      deleteActivity(id) {
+        setState('activities', (activities) => activities.filter((a) => a.id != id));
       },
     },
   ];
