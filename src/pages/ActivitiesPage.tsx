@@ -10,16 +10,16 @@ import EditIcon from '../components/icons/EditIcon';
 import { invoke } from '@tauri-apps/api';
 import { TauriEvent } from '@tauri-apps/api/event';
 import { ActivityJson } from '../model';
+import { useNavigate } from '@solidjs/router';
 
 const ActivitiesPage: Component = () => {
   const [state, { addActivity }] = useContext(StateContext);
   const [isOpenedAdd, setIsOpenedAdd] = createSignal<boolean>(false);
   const [isEdit, setIsEdit] = createSignal(false);
   const [_, { initActivities }] = useContext(StateContext);
+  const nav = useNavigate();
 
   let wsDivRef: HTMLDivElement | undefined;
-
-  let wv: WebviewWindow;
 
   const onClickAdd = async () => {
     await invoke('new_window', { rank: state.activities.length + 1 });
@@ -60,7 +60,7 @@ const ActivitiesPage: Component = () => {
       <div class={styles.barContainer}>
         <menu class={styles.bottomBar}>
           <li>
-            <DashboardIcon onClick={() => wv.emit('new-activity-page')} />
+            <DashboardIcon onClick={() => nav('/dashboard')} />
           </li>
           <li>
             <AddIcon onClick={onClickAdd} />

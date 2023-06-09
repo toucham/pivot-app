@@ -35,7 +35,7 @@ const TimerPage: Component = () => {
 
   return (
     <main data-tauri-drag-region class={styles.page}>
-      <Show when={act()}>{(a) => <ActivityCard activity={a()} />}</Show>
+      <Show when={act()}>{(a) => <ActivityCard isEdit={false} activity={a()} />}</Show>
     </main>
   );
 };
